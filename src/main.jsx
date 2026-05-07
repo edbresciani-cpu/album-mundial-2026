@@ -338,7 +338,7 @@ function App() {
       <div className="album-ribbon album-ribbon-right" />
 
       <header className="hero">
-        <div className="hero-badge">Sticker Collection Â· Edicion entre amigos</div>
+        <div className="hero-badge">Sticker Collection · Edicion entre amigos</div>
         <h1>Album Mundial 2026</h1>
         <h2 className="hero-tagline">La coleccion que se vive sobre a sobre.</h2>
         <p className="subtitle">
@@ -681,7 +681,7 @@ function RepeatedList({ cards, onSelectCard, owned }) {
           <div>
             <p>{card.name}</p>
             <span>
-              {card.team} Â· {card.position} Â· {card.role === 'coach' ? 'DT' : card.isStarter ? 'Titular' : 'Banco'}
+              {card.team} · {card.position} · {card.role === 'coach' ? 'DT' : card.isStarter ? 'Titular' : 'Banco'}
             </span>
           </div>
           <strong>x{owned[card.id] - 1}</strong>
@@ -708,7 +708,7 @@ function TradesView({
       <section className="trade-compose">
         <span className="section-kicker">Nuevo intercambio</span>
         <h2>Proponer canje a un amigo</h2>
-        <p>ElegÃ­ una repetida tuya, la figurita que querÃ©s pedir y el usuario destinatario.</p>
+        <p>Elegi una repetida tuya, la figurita que queres pedir y el usuario destinatario.</p>
 
         <form className="auth-form" onSubmit={onCreateTrade}>
           <input
@@ -724,7 +724,7 @@ function TradesView({
             <option value="">Elegir amigo</option>
             {directory.map((profile) => (
               <option key={profile.id} value={profile.id}>
-                {(profile.display_name || profile.email) + ' Â· ' + profile.email}
+                {(profile.display_name || profile.email) + ' · ' + profile.email}
               </option>
             ))}
           </select>
@@ -736,7 +736,7 @@ function TradesView({
             <option value="">Tu repetida a ofrecer</option>
             {repeatedCards.map((card) => (
               <option key={card.id} value={card.id}>
-                {card.name} Â· x{Math.max(0, (ownedMap[card.id] || 0) - 1)}
+                {card.name} · x{Math.max(0, (ownedMap[card.id] || 0) - 1)}
               </option>
             ))}
           </select>
@@ -745,10 +745,10 @@ function TradesView({
             value={tradeForm.requestedStickerId}
             onChange={(event) => onChangeTradeForm((prev) => ({ ...prev, requestedStickerId: event.target.value }))}
           >
-            <option value="">Figurita que querÃ©s pedir</option>
+            <option value="">Figurita que queres pedir</option>
             {albumCards.map((card) => (
               <option key={card.id} value={card.id}>
-                {card.name} Â· {card.team}
+                {card.name} · {card.team}
               </option>
             ))}
           </select>
@@ -998,7 +998,7 @@ function StickerCard({ card, count, fresh = false, onSelect }) {
           <h3>{isOwned ? card.name : 'Figurita bloqueada'}</h3>
           <p className="sticker-meta">
             {isOwned
-              ? `${card.position} Â· ${card.role === 'coach' ? 'DT' : card.isStarter ? 'Titular' : 'Banco'}`
+              ? `${card.position} · ${card.role === 'coach' ? 'DT' : card.isStarter ? 'Titular' : 'Banco'}`
               : 'Abri sobres para descubrirla'}
           </p>
           {isOwned && (
