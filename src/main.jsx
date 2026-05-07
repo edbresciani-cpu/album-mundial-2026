@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -40,6 +40,7 @@ import {
 } from './lib/cloudStore';
 
 const photoCache = new Map();
+const summaryCache = new Map();
 
 function App() {
   const [progress, setProgress] = useState(emptyProgress);
@@ -53,6 +54,7 @@ function App() {
   const [busy, setBusy] = useState(true);
   const [tradeFeed, setTradeFeed] = useState([]);
   const [directory, setDirectory] = useState([]);
+  const [focusedCard, setFocusedCard] = useState(null);
   const [tradeForm, setTradeForm] = useState({
     targetUserId: '',
     search: '',
@@ -186,6 +188,19 @@ function App() {
 
     persistAchievements();
   }, [achievements, isCloudMode, progress, session]);
+
+  useEffect(() => {
+    if (!focusedCard) return undefined;
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        setFocusedCard(null);
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [focusedCard]);
 
   const stats = useMemo(() => {
     const unique = Object.values(progress.owned).filter((count) => count > 0).length;
@@ -323,7 +338,7 @@ function App() {
       <div className="album-ribbon album-ribbon-right" />
 
       <header className="hero">
-        <div className="hero-badge">Sticker Collection · Edicion entre amigos</div>
+        <div className="hero-badge">Sticker Collection Â· Edicion entre amigos</div>
         <h1>Album Mundial 2026</h1>
         <h2 className="hero-tagline">La coleccion que se vive sobre a sobre.</h2>
         <p className="subtitle">
@@ -441,9 +456,9 @@ function App() {
           />
         </section>
 
-        {view === 'album' && <AlbumGrid cards={filteredCards} owned={progress.owned} />}
-        {view === 'sobre' && <PackReveal cards={progress.lastPack} />}
-        {view === 'repetidas' && <RepeatedList cards={repeatedCards} owned={progress.owned} />}
+        {view === 'album' && <AlbumGrid cards={filteredCards} owned={progress.owned} onSelectCard={setFocusedCard} />}
+        {view === 'sobre' && <PackReveal cards={progress.lastPack} onSelectCard={setFocusedCard} />}
+        {view === 'repetidas' && <RepeatedList cards={repeatedCards} owned={progress.owned} onSelectCard={setFocusedCard} />}
         {view === 'achievements' && <AchievementsView achievements={achievements} />}
         {view === 'trades' && isCloudMode && session && (
           <TradesView
@@ -459,6 +474,7 @@ function App() {
             trades={tradeFeed}
           />
         )}
+        <PlayerModal card={focusedCard} onClose={() => setFocusedCard(null)} />
       </main>
     </div>
   );
@@ -612,17 +628,17 @@ function TeamOverview({ team }) {
   );
 }
 
-function AlbumGrid({ cards, owned }) {
+function AlbumGrid({ cards, onSelectCard, owned }) {
   return (
     <section className="sticker-sheet">
       {cards.map((card) => (
-        <StickerCard key={card.id} card={card} count={owned[card.id] || 0} />
+        <StickerCard key={card.id} card={card} count={owned[card.id] || 0} onSelect={onSelectCard} />
       ))}
     </section>
   );
 }
 
-function PackReveal({ cards }) {
+function PackReveal({ cards, onSelectCard }) {
   if (!cards.length) {
     return <div className="empty-state">Todavia no abriste ningun sobre.</div>;
   }
@@ -644,7 +660,7 @@ function PackReveal({ cards }) {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.05 }}
             >
-              <StickerCard card={card} count={card.countAfterOpen} fresh={card.isNew} />
+              <StickerCard card={card} count={card.countAfterOpen} fresh={card.isNew} onSelect={onSelectCard} />
             </motion.div>
           ))}
         </AnimatePresence>
@@ -653,7 +669,7 @@ function PackReveal({ cards }) {
   );
 }
 
-function RepeatedList({ cards, owned }) {
+function RepeatedList({ cards, onSelectCard, owned }) {
   if (!cards.length) {
     return <div className="empty-state">Aun no tenes repetidas.</div>;
   }
@@ -661,11 +677,11 @@ function RepeatedList({ cards, owned }) {
   return (
     <div className="trade-list">
       {cards.map((card) => (
-        <article className="trade-card" key={card.id}>
+        <article className="trade-card trade-card-clickable" key={card.id} onClick={() => onSelectCard(card)}>
           <div>
             <p>{card.name}</p>
             <span>
-              {card.team} · {card.position} · {card.role === 'coach' ? 'DT' : card.isStarter ? 'Titular' : 'Banco'}
+              {card.team} Â· {card.position} Â· {card.role === 'coach' ? 'DT' : card.isStarter ? 'Titular' : 'Banco'}
             </span>
           </div>
           <strong>x{owned[card.id] - 1}</strong>
@@ -692,7 +708,7 @@ function TradesView({
       <section className="trade-compose">
         <span className="section-kicker">Nuevo intercambio</span>
         <h2>Proponer canje a un amigo</h2>
-        <p>Elegí una repetida tuya, la figurita que querés pedir y el usuario destinatario.</p>
+        <p>ElegÃ­ una repetida tuya, la figurita que querÃ©s pedir y el usuario destinatario.</p>
 
         <form className="auth-form" onSubmit={onCreateTrade}>
           <input
@@ -708,7 +724,7 @@ function TradesView({
             <option value="">Elegir amigo</option>
             {directory.map((profile) => (
               <option key={profile.id} value={profile.id}>
-                {(profile.display_name || profile.email) + ' · ' + profile.email}
+                {(profile.display_name || profile.email) + ' Â· ' + profile.email}
               </option>
             ))}
           </select>
@@ -720,7 +736,7 @@ function TradesView({
             <option value="">Tu repetida a ofrecer</option>
             {repeatedCards.map((card) => (
               <option key={card.id} value={card.id}>
-                {card.name} · x{Math.max(0, (ownedMap[card.id] || 0) - 1)}
+                {card.name} Â· x{Math.max(0, (ownedMap[card.id] || 0) - 1)}
               </option>
             ))}
           </select>
@@ -729,10 +745,10 @@ function TradesView({
             value={tradeForm.requestedStickerId}
             onChange={(event) => onChangeTradeForm((prev) => ({ ...prev, requestedStickerId: event.target.value }))}
           >
-            <option value="">Figurita que querés pedir</option>
+            <option value="">Figurita que querÃ©s pedir</option>
             {albumCards.map((card) => (
               <option key={card.id} value={card.id}>
-                {card.name} · {card.team}
+                {card.name} Â· {card.team}
               </option>
             ))}
           </select>
@@ -875,6 +891,34 @@ async function resolvePhotoUrl(wikiTitle) {
   }
 }
 
+async function resolveSummary(wikiTitle) {
+  if (!wikiTitle) return null;
+  if (summaryCache.has(wikiTitle)) return summaryCache.get(wikiTitle);
+
+  try {
+    const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`);
+    if (!response.ok) throw new Error('No summary');
+    const payload = await response.json();
+    const summary = payload.extract || null;
+    summaryCache.set(wikiTitle, summary);
+    return summary;
+  } catch {
+    summaryCache.set(wikiTitle, null);
+    return null;
+  }
+}
+
+function buildFallbackSummary(card) {
+  if (!card) return '';
+
+  if (card.role === 'coach') {
+    return `${card.name} es el director tecnico de ${card.team} en esta coleccion, con una propuesta apoyada en el sistema ${card.formation}.`;
+  }
+
+  const status = card.isStarter ? 'titular' : 'parte del banco';
+  return `${card.name} forma parte de ${card.team} como ${card.position} y aparece en el album como ${status} dentro del esquema ${card.formation}.`;
+}
+
 function PlayerPortrait({ card, visible }) {
   const [photoUrl, setPhotoUrl] = useState(() => photoCache.get(card.wikiTitle) || null);
 
@@ -906,18 +950,32 @@ function PlayerPortrait({ card, visible }) {
   );
 }
 
-function StickerCard({ card, count, fresh = false }) {
+function StickerCard({ card, count, fresh = false, onSelect }) {
   const isOwned = count > 0;
   const rarity = rarityConfig[card.rarity];
+  const clickable = isOwned && typeof onSelect === 'function';
 
   return (
     <article
-      className={`sticker-card ${card.rarity} ${isOwned ? 'owned' : 'locked'}`}
+      className={`sticker-card ${card.rarity} ${isOwned ? 'owned' : 'locked'} ${clickable ? 'clickable' : ''}`}
       style={{
         '--team-accent-a': card.colors[0],
         '--team-accent-b': card.colors[1],
         '--rarity-accent': rarity.accent,
       }}
+      onClick={clickable ? () => onSelect(card) : undefined}
+      onKeyDown={
+        clickable
+          ? (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                onSelect(card);
+              }
+            }
+          : undefined
+      }
+      role={clickable ? 'button' : undefined}
+      tabIndex={clickable ? 0 : undefined}
     >
       <div className="sticker-frame">
         {fresh && <span className="new-badge">Nueva</span>}
@@ -937,7 +995,7 @@ function StickerCard({ card, count, fresh = false }) {
           <h3>{isOwned ? card.name : 'Figurita bloqueada'}</h3>
           <p className="sticker-meta">
             {isOwned
-              ? `${card.position} · ${card.role === 'coach' ? 'DT' : card.isStarter ? 'Titular' : 'Banco'}`
+              ? `${card.position} Â· ${card.role === 'coach' ? 'DT' : card.isStarter ? 'Titular' : 'Banco'}`
               : 'Abri sobres para descubrirla'}
           </p>
         </div>
@@ -948,6 +1006,72 @@ function StickerCard({ card, count, fresh = false }) {
         </footer>
       </div>
     </article>
+  );
+}
+
+function PlayerModal({ card, onClose }) {
+  const [summary, setSummary] = useState('');
+
+  useEffect(() => {
+    let active = true;
+
+    if (!card) {
+      setSummary('');
+      return undefined;
+    }
+
+    setSummary('');
+    resolveSummary(card.wikiTitle).then((text) => {
+      if (active) setSummary(text || buildFallbackSummary(card));
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [card]);
+
+  if (!card) return null;
+
+  const rarity = rarityConfig[card.rarity];
+  const roleLabel = card.role === 'coach' ? 'Director tecnico' : card.isStarter ? 'Titular' : 'Banco';
+
+  return (
+    <AnimatePresence>
+      <motion.div className="player-modal-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
+        <motion.aside
+          className="player-modal"
+          initial={{ opacity: 0, y: 20, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.97 }}
+          transition={{ duration: 0.2 }}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <button type="button" className="player-modal-close" onClick={onClose} aria-label="Cerrar ficha">
+            X
+          </button>
+
+          <div className="player-modal-media" style={{ '--team-accent-a': card.colors[0], '--team-accent-b': card.colors[1] }}>
+            <PlayerPortrait card={card} visible />
+          </div>
+
+          <div className="player-modal-copy">
+            <span className="section-kicker">{card.team}</span>
+            <h2>{card.name}</h2>
+            <div className="player-modal-meta">
+              <span>{card.number}</span>
+              <span>{card.position}</span>
+              <span>{roleLabel}</span>
+              <span>{rarity.label}</span>
+            </div>
+            <p>{summary || buildFallbackSummary(card)}</p>
+            <div className="player-modal-details">
+              <strong>{card.formation}</strong>
+              <small>Esquema del equipo</small>
+            </div>
+          </div>
+        </motion.aside>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
