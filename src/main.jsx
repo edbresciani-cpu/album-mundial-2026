@@ -954,6 +954,9 @@ function StickerCard({ card, count, fresh = false, onSelect }) {
   const isOwned = count > 0;
   const rarity = rarityConfig[card.rarity];
   const clickable = isOwned && typeof onSelect === 'function';
+  const handleSelect = () => {
+    if (clickable) onSelect(card);
+  };
 
   return (
     <article
@@ -963,13 +966,13 @@ function StickerCard({ card, count, fresh = false, onSelect }) {
         '--team-accent-b': card.colors[1],
         '--rarity-accent': rarity.accent,
       }}
-      onClick={clickable ? () => onSelect(card) : undefined}
+      onClick={clickable ? handleSelect : undefined}
       onKeyDown={
         clickable
           ? (event) => {
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
-                onSelect(card);
+                handleSelect();
               }
             }
           : undefined
@@ -998,6 +1001,18 @@ function StickerCard({ card, count, fresh = false, onSelect }) {
               ? `${card.position} Â· ${card.role === 'coach' ? 'DT' : card.isStarter ? 'Titular' : 'Banco'}`
               : 'Abri sobres para descubrirla'}
           </p>
+          {isOwned && (
+            <button
+              type="button"
+              className="sticker-open-button"
+              onClick={(event) => {
+                event.stopPropagation();
+                handleSelect();
+              }}
+            >
+              Ver ficha
+            </button>
+          )}
         </div>
 
         <footer className="sticker-footer">
