@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Álbum MVP">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7fd6ff" />
+      <stop offset="100%" stop-color="#f8c861" />
+    </linearGradient>
+    <linearGradient id="card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f1f36" />
+      <stop offset="100%" stop-color="#1e3d6b" />
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="#08111f" />
+  <circle cx="198" cy="58" r="22" fill="#f8c861" opacity="0.9" />
+  <rect x="44" y="44" width="168" height="168" rx="28" fill="url(#card)" stroke="url(#bg)" stroke-width="8" />
+  <rect x="74" y="74" width="108" height="108" rx="24" fill="url(#bg)" />
+  <path d="M128 92l10.5 21.2 23.5 3.4-17 16.6 4 23.4L128 145.5l-21 11.1 4-23.4-17-16.6 23.5-3.4z" fill="#08111f" />
+</svg>

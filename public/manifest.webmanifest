@@ -1,0 +1,18 @@
+{
+  "name": "Álbum Mundial Digital MVP",
+  "short_name": "Álbum MVP",
+  "description": "MVP de colección de figuritas con sobres semanales y repetidas.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08111f",
+  "theme_color": "#08111f",
+  "lang": "es-AR",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
